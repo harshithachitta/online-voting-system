@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SecureVote — Advanced Online Voting System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===== LOADING SCREEN ===== -->
+<div id="loadingScreen" class="loading-screen">
+  <div class="loader-inner">
+    <div class="loader-logo">SV</div>
+    <div class="loader-bar"><div class="loader-fill"></div></div>
+    <p class="loader-text">Initializing Secure Environment...</p>
+  </div>
+</div>
+
+<!-- ===== NAVBAR ===== -->
+<nav id="navbar" class="navbar hidden">
+  <div class="nav-brand"><span class="brand-icon">⬡</span> SecureVote</div>
+  <div class="nav-links">
+    <span id="navUserInfo" class="nav-user-info"></span>
+    <button id="navLogout" class="btn-ghost hidden" onclick="logout()">Logout</button>
+  </div>
+</nav>
+
+<!-- ===== SCREENS ===== -->
+
+<!-- SCREEN 1: WELCOME -->
+<div id="screenWelcome" class="screen">
+  <div class="welcome-bg">
+    <div class="bg-grid"></div>
+    <div class="bg-orb orb1"></div>
+    <div class="bg-orb orb2"></div>
+  </div>
+  <div class="welcome-content">
+    <div class="welcome-badge">🔒 Military-Grade Security</div>
+    <h1 class="welcome-title">SecureVote<br/><span>Democracy, Secured.</span></h1>
+    <p class="welcome-sub">The most advanced online voting platform with face recognition, biometric verification, and multi-layer fraud prevention.</p>
+    <div class="welcome-features">
+      <div class="feat"><span>👁️</span> Face Recognition</div>
+      <div class="feat"><span>🔐</span> 2-Step Verification</div>
+      <div class="feat"><span>🫆</span> Biometric Auth</div>
+      <div class="feat"><span>🛡️</span> Duplicate Prevention</div>
+    </div>
+    <div class="welcome-cta">
+      <button class="btn-primary" onclick="showScreen('screenLogin')">Login to Vote</button>
+      <button class="btn-secondary" onclick="showScreen('screenRegister')">Register</button>
+    </div>
+    <p class="welcome-demo">Demo Admin: <code>admin@vote.com / Admin@123</code> | Demo Voter: <code>voter@vote.com / Voter@123</code></p>
+  </div>
+  <div class="welcome-visual">
+    <div class="security-ring ring1"></div>
+    <div class="security-ring ring2"></div>
+    <div class="security-ring ring3"></div>
+    <div class="security-core">🗳️</div>
+    <div class="orbit-dot dot1">🔐</div>
+    <div class="orbit-dot dot2">👁️</div>
+    <div class="orbit-dot dot3">🛡️</div>
+    <div class="orbit-dot dot4">🫆</div>
+  </div>
+</div>
+
+<!-- SCREEN 2: REGISTER -->
+<div class="screen" id="screenRegister">
+  <div class="auth-card">
+    <button class="btn-back" onclick="showScreen('screenWelcome')">&#8592; Back</button>
+    <div class="auth-header">
+      <div class="auth-icon">📋</div>
+      <h2>Voter Registration</h2>
+      <p>Create your secure voter account</p>
+    </div>
+
+    <div id="regStep1" class="reg-step active">
+      <h3 class="step-label"><span class="step-num">1</span> Personal Information</h3>
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="regName" placeholder="John Doe" />
+        </div>
+        <div class="form-group">
+          <label>Voter ID / National ID</label>
+          <input type="text" id="regVoterId" placeholder="VTR-XXXXXXXX" />
+        </div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input type="email" id="regEmail" placeholder="john@example.com" />
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" id="regPhone" placeholder="+91 XXXXXXXXXX" />
+        </div>
+        <div class="form-group">
+          <label>Date of Birth</label>
+          <input type="date" id="regDob" />
+        </div>
+        <div class="form-group">
+          <label>Constituency / District</label>
+          <select id="regConstituency">
+            <option value="">Select Constituency</option>
+            <option>Vijayawada East</option>
+            <option>Vijayawada West</option>
+            <option>Guntur North</option>
+            <option>Guntur South</option>
+            <option>Amaravati Central</option>
+            <option>Krishna District</option>
+          </select>
+        </div>
+        <div class="form-group full-width">
+          <label>Password</label>
+          <input type="password" id="regPassword" placeholder="Min 8 chars, 1 uppercase, 1 number" />
+        </div>
+        <div class="form-group full-width">
+          <label>Confirm Password</label>
+          <input type="password" id="regConfirmPassword" placeholder="Repeat password" />
+        </div>
+      </div>
+      <button class="btn-primary full-width" onclick="regNextStep()">Continue to Face Registration &#8594;</button>
+    </div>
+
+    <div id="regStep2" class="reg-step">
+      <h3 class="step-label"><span class="step-num">2</span> Face Registration</h3>
+      <p class="step-desc">We'll capture your face to prevent duplicate voting. Please look directly at the camera.</p>
+      <div class="camera-container">
+        <video id="regVideo" autoplay playsinline></video>
+        <canvas id="regCanvas" class="hidden"></canvas>
+        <div class="camera-overlay">
+          <div class="face-guide"></div>
+          <div class="scan-line"></div>
+        </div>
+        <div id="regFaceStatus" class="face-status">📷 Position your face in the oval</div>
+      </div>
+      <div class="camera-actions">
+        <button class="btn-secondary" onclick="startRegCamera()">📷 Start Camera</button>
+        <button class="btn-primary" id="captureRegBtn" onclick="captureRegFace()" disabled>&#10003; Capture Face</button>
+      </div>
+      <div id="regFacePreview" class="face-preview hidden">
+        <img id="regFaceImg" src="" alt="Captured face"/>
+        <p class="face-preview-label">✅ Face captured successfully</p>
+      </div>
+      <div class="btn-row">
+        <button class="btn-ghost" onclick="goRegStep(1)">&#8592; Back</button>
+        <button class="btn-primary" onclick="regNextStep2()">Continue to Biometric &#8594;</button>
+      </div>
+    </div>
+
+    <div id="regStep3" class="reg-step">
+      <h3 class="step-label"><span class="step-num">3</span> Biometric Registration</h3>
+      <p class="step-desc">Register your fingerprint / device biometric for extra security.</p>
+      <div class="biometric-card">
+        <div class="fingerprint-icon" id="fingerprintAnim">🫆</div>
+        <p id="biometricMsg">Click below to register your biometric</p>
+        <button class="btn-primary" onclick="registerBiometric()" id="biometricBtn">Register Biometric</button>
+        <div id="biometricStatus" class="biometric-status hidden"></div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-ghost" onclick="goRegStep(2)">&#8592; Back</button>
+        <button class="btn-primary" onclick="completeRegistration()">Complete Registration &#8594;</button>
+      </div>
+    </div>
+
+    <div id="regSuccess" class="reg-step">
+      <div class="success-animation">
+        <div class="success-circle">✅</div>
+        <h3>Registration Successful!</h3>
+        <p>Your voter account has been created with full biometric and face recognition. You can now login to vote.</p>
+        <button class="btn-primary" onclick="clearRegisterForm(); goRegStep(1); showScreen('screenLogin')">Login Now &#8594;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 3: LOGIN -->
+<div id="screenLogin" class="screen">
+  <div class="auth-card">
+    <button class="btn-back" onclick="resetLoginUI(); showScreen('screenWelcome')">&#8592; Back</button>
+    <div class="auth-header">
+      <div class="auth-icon">🔑</div>
+      <h2>Secure Login</h2>
+      <p>Multi-layer authentication to protect your vote</p>
+    </div>
+
+    <div id="loginStep1" class="login-step active">
+      <h3 class="step-label"><span class="step-num">1</span> Credentials</h3>
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" id="loginEmail" placeholder="your@email.com" />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="Your password" />
+      </div>
+      <button class="btn-primary full-width" onclick="loginStep1()">Continue &#8594;</button>
+    </div>
+
+    <div id="loginStep2" class="login-step">
+      <h3 class="step-label"><span class="step-num">2</span> Face Verification</h3>
+      <p class="step-desc">Verify your identity via face recognition to prevent unauthorized access.</p>
+      <div class="camera-container">
+        <video id="loginVideo" autoplay playsinline></video>
+        <canvas id="loginCanvas" class="hidden"></canvas>
+        <div class="camera-overlay">
+          <div class="face-guide"></div>
+          <div class="scan-line"></div>
+        </div>
+        <div id="loginFaceStatus" class="face-status">📷 Position your face in the oval</div>
+      </div>
+      <div class="camera-actions">
+        <button class="btn-secondary" onclick="startLoginCamera()">📷 Start Camera</button>
+        <button class="btn-primary" id="verifyFaceBtn" onclick="verifyLoginFace()" disabled>🔍 Verify Face</button>
+      </div>
+      <div class="btn-row">
+        <button class="btn-ghost" onclick="goLoginStep(1)">&#8592; Back</button>
+      </div>
+    </div>
+
+    <div id="loginStep3" class="login-step">
+      <h3 class="step-label"><span class="step-num">3</span> Two-Factor Authentication</h3>
+      <p class="step-desc">A 6-digit OTP has been sent to your registered email/phone.</p>
+      <div class="otp-display">
+        <div class="otp-sent-to" id="otpSentTo">📧 Sent to your email</div>
+        <div class="otp-inputs">
+          <input type="text" class="otp-input" maxlength="1" id="otp0" oninput="otpNext(0)" />
+          <input type="text" class="otp-input" maxlength="1" id="otp1" oninput="otpNext(1)" />
+          <input type="text" class="otp-input" maxlength="1" id="otp2" oninput="otpNext(2)" />
+          <input type="text" class="otp-input" maxlength="1" id="otp3" oninput="otpNext(3)" />
+          <input type="text" class="otp-input" maxlength="1" id="otp4" oninput="otpNext(4)" />
+          <input type="text" class="otp-input" maxlength="1" id="otp5" oninput="otpNext(5)" />
+        </div>
+        <div id="otpDemo" class="otp-demo-hint"></div>
+        <div id="otpTimer" class="otp-timer">&#9201; Expires in: <span id="otpCountdown">05:00</span></div>
+        <button class="btn-link" onclick="resendOTP()">Resend OTP</button>
+      </div>
+      <button class="btn-primary full-width" onclick="verifyOTP()">Verify OTP &#8594;</button>
+      <div class="btn-row">
+        <button class="btn-ghost" onclick="goLoginStep(2)">&#8592; Back</button>
+      </div>
+    </div>
+
+    <div id="loginStep4" class="login-step">
+      <h3 class="step-label"><span class="step-num">4</span> Biometric Verification</h3>
+      <p class="step-desc">Final layer — verify your biometric to complete authentication.</p>
+      <div class="biometric-card">
+        <div class="fingerprint-icon pulse" id="loginFingerprintAnim">🫆</div>
+        <p id="loginBiometricMsg">Click to authenticate with biometrics</p>
+        <button class="btn-primary" onclick="verifyBiometric()" id="loginBiometricBtn">Authenticate Biometric</button>
+        <div id="loginBiometricStatus" class="biometric-status hidden"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 4: VOTER DASHBOARD -->
+<div id="screenVoter" class="screen">
+  <div class="dashboard">
+    <div class="dashboard-header">
+      <div>
+        <h2>Welcome, <span id="voterName">Voter</span> 👋</h2>
+        <p class="dash-sub">Your identity has been verified. Cast your vote securely.</p>
+      </div>
+      <div class="security-badge">🔒 Verified Voter</div>
+    </div>
+
+    <div class="voter-meta-bar">
+      <div class="meta-item"><span>🪪</span> ID: <strong id="voterIdDisplay">—</strong></div>
+      <div class="meta-item"><span>🗺️</span> Constituency: <strong id="voterConstDisplay">—</strong></div>
+      <div class="meta-item" id="voteStatusBadge"><span>📊</span> Status: <strong>Not Yet Voted</strong></div>
+    </div>
+
+    <div id="electionsList" class="elections-list"></div>
+
+    <div id="votingPanel" class="voting-panel hidden">
+      <div class="panel-header">
+        <h3 id="electionTitle">Election Title</h3>
+        <p id="electionDesc">Description</p>
+        <div class="election-deadline">⏰ Deadline: <span id="electionDeadline">—</span></div>
+      </div>
+      <div id="candidatesList" class="candidates-list"></div>
+      <div class="vote-confirm hidden" id="voteConfirmBox">
+        <div class="confirm-card">
+          <h4>Confirm Your Vote</h4>
+          <p>You are voting for: <strong id="confirmCandidate">—</strong></p>
+          <p class="confirm-warning">⚠️ This action is IRREVERSIBLE. Once submitted, your vote cannot be changed.</p>
+          <div class="confirm-actions">
+            <button class="btn-danger" onclick="cancelVote()">Cancel</button>
+            <button class="btn-primary" onclick="submitVote()">✅ Submit Vote</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="voteReceipt" class="vote-receipt hidden">
+      <div class="receipt-card">
+        <div class="receipt-check">✅</div>
+        <h3>Vote Submitted Successfully!</h3>
+        <div class="receipt-details">
+          <div class="receipt-row"><span>Receipt ID</span><strong id="receiptId">—</strong></div>
+          <div class="receipt-row"><span>Voted For</span><strong id="receiptCandidate">—</strong></div>
+          <div class="receipt-row"><span>Election</span><strong id="receiptElection">—</strong></div>
+          <div class="receipt-row"><span>Timestamp</span><strong id="receiptTime">—</strong></div>
+          <div class="receipt-row"><span>Blockchain Hash</span><strong id="receiptHash" class="hash-text">—</strong></div>
+        </div>
+        <button class="btn-secondary" onclick="downloadReceipt()">📄 Download Receipt</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN 5: ADMIN DASHBOARD -->
+<div id="screenAdmin" class="screen">
+  <div class="dashboard admin-dash">
+    <div class="dashboard-header">
+      <div>
+        <h2>Admin Control Panel 🛡️</h2>
+        <p class="dash-sub">Manage elections, monitor votes, and detect fraud in real-time.</p>
+      </div>
+      <div class="security-badge admin">⚙️ Admin</div>
+    </div>
+
+    <div class="admin-stats" id="adminStats"></div>
+
+    <div class="admin-tabs">
+      <button class="tab-btn active" onclick="adminTab('elections')">🗳️ Elections</button>
+      <button class="tab-btn" onclick="adminTab('voters')">👥 Voters</button>
+      <button class="tab-btn" onclick="adminTab('results')">📊 Results</button>
+      <button class="tab-btn" onclick="adminTab('security')">🔒 Security Log</button>
+    </div>
+
+    <div id="tabElections" class="tab-content active">
+      <div class="tab-header">
+        <h3>Elections</h3>
+        <button class="btn-primary" onclick="showCreateElection()">+ Create Election</button>
+      </div>
+      <div id="adminElectionsList"></div>
+
+      <div id="createElectionForm" class="create-form hidden">
+        <h4>Create New Election</h4>
+        <div class="form-grid">
+          <div class="form-group full-width">
+            <label>Election Title</label>
+            <input type="text" id="elTitle" placeholder="e.g., State Assembly Election 2025" />
+          </div>
+          <div class="form-group full-width">
+            <label>Description</label>
+            <textarea id="elDesc" placeholder="Election description..."></textarea>
+          </div>
+          <div class="form-group">
+            <label>Start Date &amp; Time</label>
+            <input type="datetime-local" id="elStart" />
+          </div>
+          <div class="form-group">
+            <label>End Date &amp; Time</label>
+            <input type="datetime-local" id="elEnd" />
+          </div>
+          <div class="form-group full-width">
+            <label>Candidates (one per line: Name, Party, Symbol)</label>
+            <textarea id="elCandidates" rows="6" placeholder="Ravi Kumar, BJP, 🪷&#10;Sita Devi, INC, ✋&#10;Mohan Rao, TDP, 🚲"></textarea>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-ghost" onclick="hideCreateElection()">Cancel</button>
+          <button class="btn-primary" onclick="createElection()">Create Election</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="tabVoters" class="tab-content">
+      <div class="tab-header"><h3>Registered Voters</h3></div>
+      <div id="voterTable"></div>
+    </div>
+
+    <div id="tabResults" class="tab-content">
+      <div class="tab-header"><h3>Live Election Results</h3></div>
+      <div id="resultsPanel"></div>
+    </div>
+
+    <div id="tabSecurity" class="tab-content">
+      <div class="tab-header"><h3>Security &amp; Fraud Detection Log</h3></div>
+      <div id="securityLog"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toast" class="toast hidden"></div>
+
+<!-- ===== MODAL ===== -->
+<div id="modal" class="modal-overlay hidden" onclick="if(event.target===this)closeModal()">
+  <div class="modal-box">
+    <div id="modalContent"></div>
+    <button class="btn-ghost" style="margin-top:1rem;width:100%" onclick="closeModal()">Close</button>
+  </div>
+</div>
+
+<!-- ===== SCRIPT ===== -->
+ <script src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+ <script src="app.js"></script>
+
+</body>
+</html>
